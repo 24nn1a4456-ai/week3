@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Management System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#2563eb;
+}
+
+.menu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+.menu button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+.menu button:hover{
+    background:#1d4ed8;
+}
+
+.section{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+}
+
+.action-btn{
+    background:green;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    cursor:pointer;
+}
+
+.delete-btn{
+    background:red;
+    color:white;
+    border:none;
+    padding:5px 10px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+.card{
+    background:#2563eb;
+    color:white;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+}
+
+.hidden{
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📚 Library Management System</h1>
+
+<div class="menu">
+    <button onclick="showSection('addBook')">Add Book</button>
+    <button onclick="showSection('viewBooks')">View Books</button>
+    <button onclick="showSection('searchBook')">Search Book</button>
+    <button onclick="showSection('member')">Register Member</button>
+    <button onclick="showSection('borrow')">Borrow Book</button>
+    <button onclick="showSection('returnBook')">Return Book</button>
+    <button onclick="showSection('stats')">Statistics</button>
+</div>
+
+<!-- Add Book -->
+<div id="addBook" class="section">
+    <h2>Add New Book</h2>
+
+    <input type="text" id="isbn" placeholder="ISBN">
+    <input type="text" id="title" placeholder="Book Title">
+    <input type="text" id="author" placeholder="Author">
+    <input type="number" id="year" placeholder="Publication Year">
+
+    <button class="action-btn" onclick="addBook()">
+        Add Book
+    </button>
+</div>
+
+<!-- View Books -->
+<div id="viewBooks" class="section">
+
+    <h2>All Books</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Year</th>
+                <th>Status</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+
+        <tbody id="bookTable"></tbody>
+
+    </table>
+
+</div>
+
+<!-- Search -->
+<div id="searchBook" class="section hidden">
+
+    <h2>Search Books</h2>
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Enter title">
+
+    <button class="action-btn"
+        onclick="searchBook()">
+        Search
+    </button>
+
+    <div id="searchResult"></div>
+
+</div>
+
+<!-- Register Member -->
+<div id="member" class="section hidden">
+
+    <h2>Register Member</h2>
+
+    <input type="text"
+        id="memberId"
+        placeholder="Member ID">
+
+    <input type="text"
+        id="memberName"
+        placeholder="Member Name">
+
+    <button class="action-btn"
+        onclick="registerMember()">
+        Register
+    </button>
+
+</div>
+
+<!-- Borrow -->
+<div id="borrow" class="section hidden">
+
+    <h2>Borrow Book</h2>
+
+    <input type="text"
+        id="borrowISBN"
+        placeholder="ISBN">
+
+    <input type="text"
+        id="borrowMember"
+        placeholder="Member ID">
+
+    <button class="action-btn"
+        onclick="borrowBook()">
+        Borrow
+    </button>
+
+</div>
+
+<!-- Return -->
+<div id="returnBook" class="section hidden">
+
+    <h2>Return Book</h2>
+
+    <input type="text"
+        id="returnISBN"
+        placeholder="ISBN">
+
+    <button class="action-btn"
+        onclick="returnBook()">
+        Return
+    </button>
+
+</div>
+
+<!-- Statistics -->
+<div id="stats" class="section hidden">
+
+    <h2>Library Statistics</h2>
+
+    <div class="stats">
+
+        <div class="card">
+            <h3>Total Books</h3>
+            <h1 id="totalBooks">0</h1>
+        </div>
+
+        <div class="card">
+            <h3>Available</h3>
+            <h1 id="availableBooks">0</h1>
+        </div>
+
+        <div class="card">
+            <h3>Borrowed</h3>
+            <h1 id="borrowedBooks">0</h1>
+        </div>
+
+        <div class="card">
+            <h3>Members</h3>
+            <h1 id="registeredMembers">0</h1>
+        </div>
+
+        <div class="card">
+            <h3>Overdue</h3>
+            <h1 id="overdueBooks">0</h1>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+let books =
+JSON.parse(localStorage.getItem("books")) || [];
+
+let members =
+JSON.parse(localStorage.getItem("members")) || [];
+
+function saveData(){
+
+    localStorage.setItem(
+        "books",
+        JSON.stringify(books)
+    );
+
+    localStorage.setItem(
+        "members",
+        JSON.stringify(members)
+    );
+
+    displayBooks();
+    updateStatistics();
+}
+
+function showSection(id){
+
+    document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+        section.classList.add("hidden");
+    });
+
+    document
+    .getElementById(id)
+    .classList.remove("hidden");
+}
+
+function addBook(){
+
+    let isbn =
+    document.getElementById("isbn").value.trim();
+
+    let title =
+    document.getElementById("title").value.trim();
+
+    let author =
+    document.getElementById("author").value.trim();
+
+    let year =
+    document.getElementById("year").value.trim();
+
+    if(!isbn || !title || !author || !year){
+        alert("Fill all fields");
+        return;
+    }
+
+    let exists =
+    books.some(book=>book.isbn===isbn);
+
+    if(exists){
+        alert("ISBN already exists");
+        return;
+    }
+
+    books.push({
+        isbn,
+        title,
+        author,
+        year,
+        available:true,
+        borrowedBy:null,
+        dueDate:null
+    });
+
+    saveData();
+
+    document.getElementById("isbn").value="";
+    document.getElementById("title").value="";
+    document.getElementById("author").value="";
+    document.getElementById("year").value="";
+
+    alert("Book Added Successfully");
+}
+
+function deleteBook(index){
+
+    if(confirm("Delete this book?")){
+
+        books.splice(index,1);
+
+        saveData();
+    }
+}
+
+function displayBooks(){
+
+    let table =
+    document.getElementById("bookTable");
+
+    table.innerHTML="";
+
+    books.forEach((book,index)=>{
+
+        let status =
+        book.available
+        ? "Available"
+        : "Borrowed By " + book.borrowedBy;
+
+        table.innerHTML += `
+        <tr>
+            <td>${book.isbn}</td>
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.year}</td>
+            <td>${status}</td>
+
+            <td>
+            <button
+            class="delete-btn"
+            onclick="deleteBook(${index})">
+            Delete
+            </button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+function searchBook(){
+
+    let keyword =
+    document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+    let result =
+    books.filter(book=>
+        book.title
+        .toLowerCase()
+        .includes(keyword)
+    );
+
+    let html="<h3>Results</h3>";
+
+    result.forEach(book=>{
+
+        html += `
+        <p>
+        ${book.title}
+        -
+        ${book.author}
+        </p>
+        `;
+    });
+
+    document
+    .getElementById("searchResult")
+    .innerHTML = html;
+}
+
+function registerMember(){
+
+    let memberId =
+    document.getElementById("memberId").value;
+
+    let memberName =
+    document.getElementById("memberName").value;
+
+    if(!memberId || !memberName){
+        alert("Enter Member Details");
+        return;
+    }
+
+    members.push({
+        memberId,
+        memberName,
+        borrowedBooks:[]
+    });
+
+    saveData();
+
+    alert("Member Registered");
+}
+
+function borrowBook(){
+
+    let isbn =
+    document.getElementById("borrowISBN").value;
+
+    let memberId =
+    document.getElementById("borrowMember").value;
+
+    let book =
+    books.find(b=>b.isbn===isbn);
+
+    let member =
+    members.find(
+        m=>m.memberId===memberId
+    );
+
+    if(!book){
+        alert("Book Not Found");
+        return;
+    }
+
+    if(!member){
+        alert("Member Not Found");
+        return;
+    }
+
+    if(!book.available){
+        alert("Book Already Borrowed");
+        return;
+    }
+
+    let dueDate = new Date();
+
+    dueDate.setDate(
+        dueDate.getDate()+14
+    );
+
+    book.available=false;
+    book.borrowedBy=memberId;
+    book.dueDate=dueDate;
+
+    member.borrowedBooks.push(isbn);
+
+    saveData();
+
+    alert("Book Borrowed");
+}
+
+function returnBook(){
+
+    let isbn =
+    document.getElementById("returnISBN").value;
+
+    let book =
+    books.find(b=>b.isbn===isbn);
+
+    if(!book){
+        alert("Book Not Found");
+        return;
+    }
+
+    book.available=true;
+    book.borrowedBy=null;
+    book.dueDate=null;
+
+    saveData();
+
+    alert("Book Returned");
+}
+
+function updateStatistics(){
+
+    document.getElementById(
+        "totalBooks"
+    ).innerText = books.length;
+
+    document.getElementById(
+        "availableBooks"
+    ).innerText =
+    books.filter(
+        b=>b.available
+    ).length;
+
+    document.getElementById(
+        "borrowedBooks"
+    ).innerText =
+    books.filter(
+        b=>!b.available
+    ).length;
+
+    document.getElementById(
+        "registeredMembers"
+    ).innerText =
+    members.length;
+
+    let overdue =
+    books.filter(book=>{
+
+        if(
+            !book.available &&
+            book.dueDate
+        ){
+            return new Date(book.dueDate)
+            < new Date();
+        }
+
+        return false;
+
+    }).length;
+
+    document.getElementById(
+        "overdueBooks"
+    ).innerText = overdue;
+}
+
+displayBooks();
+updateStatistics();
+
+</script>
+
+</body>
+</html>
